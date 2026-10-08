@@ -19,14 +19,16 @@ flowchart TD
     B --> E[MASt3R 视角去重]
     C --> E
     D --> E
-    E -. 缺少转换脚本 .-> F[S2V jobs]
+    E --> J[转换保留帧与 bbox]
+    C --> J
+    J --> F[S2V jobs]
     I[easy-HOI index 或已有 jobs] --> F
     F --> G[Hunyuan 生成物体图]
     G --> H[Gemma 一致性审核]
     F --> H
 ```
 
-**第④→⑤步尚未打通**：`filtered.json` 不能直接传给 Hunyuan。⑤⑥使用已有 S2V jobs；从 easy-HOI index 构建 jobs 可参考 [Hunyuan 多视角说明](https://github.com/Taited/HunyuanImage-3.0/blob/main/README_S2V_MULTIVIEW.md)。
+第⑤步用 `build_filtered_keyframe_jobs.py` 将第④步保留帧与第②步 bbox 转为统一 jobs，第⑥步复用同一份 jobs 审核。从 easy-HOI index 构建 jobs 的另一入口见 [Hunyuan 多视角说明](https://github.com/Taited/HunyuanImage-3.0/blob/main/README_S2V_MULTIVIEW.md)。
 
 ## 准备
 
@@ -100,29 +102,29 @@ cd "$WORKSPACE_ROOT/mast3r"
 .venv/bin/python viz_filtered.py --show-dropped
 ```
 
-输出 `dataset/gemma_keyframe_filtered/filtered.json`、保留帧和可视化。先加 `--limit 1` 可做小样本检查；调大 `--tau-dup` 会保留更多视角。大规模运行可使用 `--nshards/--shard`，输出为各分片 JSON，需自行合并。
+输出 `dataset/gemma_keyframe_filtered/filtered.json`、保留帧和可视化。先加 `--limit 1` 可做小样本检查；调大 `--tau-dup` 会保留更多视角。大规模运行可使用 `--nshards/--shard`，输出为各分片 JSON，第⑤步可直接读取。
 
-## ⑤ 生成多视角物体图
+## ⑤ 转换 jobs 并生成物体图
 
-使用已有 anchor / extra-view jobs，保留 `sample_id + entity_id` 分组。jobs 还需包含 `job_name`、`frame_path`、`frame_index`、`object_name` 和归一化 `bbox_norm`。
-
-先给以下两条推理命令加 `--limit 8 --dry-run` 检查输入，再去掉这两个参数正式生成：
+先转换保留帧：每个物体目录为一组，沿用 MASt3R 的最大 bbox 检测，最大目标帧为 anchor，其余为 extra views。脚本校验图片、尺寸和 bbox，遇到缺失或无效输入会报错，不覆盖已有 jobs。
 
 ```bash
 cd "$WORKSPACE_ROOT/HunyuanImage-3.0"
+.venv/bin/python build_filtered_keyframe_jobs.py \
+  --filtered-json dataset/gemma_keyframe_filtered/filtered.json \
+  --bbox-json dataset/gemma_keyframe_bbox.json \
+  --keyframes-dir dataset/gemma_keyframe_filtered \
+  --output dataset/s2v_keyframe_recontext/jobs.filtered.jsonl
 
 CUDA_VISIBLE_DEVICES=0,1 .venv/bin/python run_s2v_multiview_hunyuan_distil.py \
-  --jobs dataset/s2v_keyframe_recontext/jobs.latest_all.jsonl \
-  --output-root dataset/s2v_object_only-hunyuan-distil/full_bbox_direct_v2 \
-  --prompt-profile strict_v2 --input-mode bbox
-
-CUDA_VISIBLE_DEVICES=0,1 .venv/bin/python run_s2v_multiview_hunyuan_distil.py \
-  --jobs dataset/s2v_keyframe_recontext/jobs.latest_all.extra_views.jsonl \
-  --output-root dataset/s2v_object_only-hunyuan-distil/extra_views_latest_all \
+  --jobs dataset/s2v_keyframe_recontext/jobs.filtered.jsonl \
+  --output-root dataset/s2v_object_only-hunyuan-distil/filtered \
   --prompt-profile strict_v2 --input-mode bbox
 ```
 
-每个输出目录包含 `videos/<sample_id>/edited/`、`reference_inputs/`、`compare/` 和 `manifest.shard_XX.jsonl`。Distil 固定 **8 steps**，建议每个 worker 使用两张 GPU；白底检查不能替代语义审核。
+首次生成先加 `--limit 8 --dry-run` 检查输入，再移除这两个参数正式执行。Distil 固定 **8 steps**，建议每个 worker 两张 GPU。输出包含 `edited/`、`reference_inputs/` 和 `manifest.shard_XX.jsonl`。
+
+分片结果可直接用 `--filtered-json dataset/gemma_keyframe_filtered/filtered.part*of*.json`，不要同时传合并文件；未使用 `--copy-frames` 时将 `--keyframes-dir` 改为原始关键帧目录。每个目录默认是同一物体，不提供多物体实例跟踪；只有一张保留帧的组仍可生成，但没有跨视角对照。
 
 ## ⑥ 审核生成结果
 
@@ -134,11 +136,9 @@ source .venv/bin/activate
 
 python scripts/gemma31b_edited_frame_consistency.py \
   --prepare-only \
-  --main-jobs dataset/s2v_keyframe_recontext/jobs.latest_all.jsonl \
-  --extra-jobs dataset/s2v_keyframe_recontext/jobs.latest_all.extra_views.jsonl \
-  --main-root dataset/s2v_object_only-hunyuan-distil/full_bbox_direct_v2 \
-  --extra-root dataset/s2v_object_only-hunyuan-distil/extra_views_latest_all \
-  --worklist dataset/gemma_edited_frame_consistency.jobs.jsonl
+  --jobs dataset/s2v_keyframe_recontext/jobs.filtered.jsonl \
+  --generation-root dataset/s2v_object_only-hunyuan-distil/filtered \
+  --worklist dataset/gemma_filtered_consistency.jobs.jsonl
 ```
 
 确认 `matched_outputs` 与已完成生成数量一致后运行：
@@ -148,12 +148,12 @@ torchrun --standalone --nproc_per_node=8 \
   scripts/gemma31b_edited_frame_consistency.py \
   --model "$GEMMA_MODEL_DIR" \
   --reuse-worklist \
-  --worklist dataset/gemma_edited_frame_consistency.jobs.jsonl \
-  --output-jsonl dataset/gemma_edited_frame_consistency.jsonl \
+  --worklist dataset/gemma_filtered_consistency.jobs.jsonl \
+  --output-jsonl dataset/gemma_filtered_consistency.jsonl \
   --batch-size 1 --max-peers 3
 ```
 
-结果写入 `dataset/gemma_edited_frame_consistency.jsonl`。`status == "ok"` 且 `verdict.pass == true` 才通过；质量失败需根据 `defects/reason` 重新生成，脚本不会自动调用 Hunyuan。
+结果写入 `dataset/gemma_filtered_consistency.jsonl`。`status == "ok"` 且 `verdict.pass == true` 才通过；质量失败需根据 `defects/reason` 重新生成，脚本不会自动调用 Hunyuan。
 
 ## 续跑与排查
 
