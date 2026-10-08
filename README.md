@@ -2,18 +2,17 @@
 
 从视频准备同一物体的多视角参考数据：关键帧提取、物体检测、前景分割、视角去重、参考图生成和一致性审核。
 
-完整运行说明：[KEYFRAME_PIPELINE.md](KEYFRAME_PIPELINE.md)。本目录是流程文档入口；实现代码位于下列四个独立仓库。
+本目录是流程文档入口；实现代码位于下列四个独立仓库。
 
 ## 代码仓库
 
-| 项目 | GitHub | 流程分支 | 已核对提交 | 主要职责 |
+| 项目 | GitHub | 流程分支 | 主要职责 |
 |---|---|---|---|---|
-| MASt3R | [Taited/MASt3R](https://github.com/Taited/MASt3R) | `wentai/keyframe-pipeline`（`main` 同步） | `6205e75` | 提取关键帧、基于共视性的视角去重与可视化 |
-| Gemma | [Taited/gemma](https://github.com/Taited/gemma) | `wentai/keyframe-pipeline` | `3082bfb` | 物体检测、模糊判断、bbox 和生成结果一致性审核 |
-| SAM2 | [Taited/sam2](https://github.com/Taited/sam2) | `wentai/keyframe-pipeline` | `6534db3` | 用 bbox 生成前景 mask |
-| HunyuanImage-3.0 | [Taited/HunyuanImage-3.0](https://github.com/Taited/HunyuanImage-3.0) | `main` | `9266ed4` | 构建多视角 jobs，生成白底物体参考图 |
+| MASt3R | [Taited/MASt3R](https://github.com/Taited/MASt3R) | `wentai/keyframe-pipeline`（`main` 同步） | 提取关键帧、基于共视性的视角去重与可视化 |
+| Gemma | [Taited/gemma](https://github.com/Taited/gemma) | `wentai/keyframe-pipeline` | 物体检测、模糊判断、bbox 和生成结果一致性审核 |
+| SAM2 | [Taited/sam2](https://github.com/Taited/sam2) | `wentai/keyframe-pipeline` | 用 bbox 生成前景 mask |
+| HunyuanImage-3.0 | [Taited/HunyuanImage-3.0](https://github.com/Taited/HunyuanImage-3.0) | `main` | 构建多视角 jobs，生成白底物体参考图 |
 
-提交号是本次核查的版本快照，不代表远端以后不会更新。
 
 ## 项目间的数据依赖
 
@@ -81,4 +80,3 @@ wentai/
 
 1. `filtered.json` 到 S2V jobs 的 adapter 尚未实现，图中的虚线表示缺失接口，不能视为已经打通。
 2. 审核失败后的 job 提取、seed/prompt 调整与重新入队仍需调度层完成；Gemma 审核脚本不会自动调用 Hunyuan 重生成。
-3. 本目录保存流程文档与仓库关系，不包含数据、权重或密钥。
