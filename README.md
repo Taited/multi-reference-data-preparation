@@ -39,7 +39,7 @@ export WORKSPACE_ROOT="$(cd .. && pwd)"
 export GEMMA_MODEL_DIR="$WORKSPACE_ROOT/weights/gemma-4-31B-it"
 ```
 
-- 各仓库独立安装环境：MASt3R / Hunyuan 使用 `.venv`，Gemma 使用 `.venv-hf`，SAM2 使用 `.venv/sam2`。
+- 建议每个仓库都安装一个独立的 Python 环境，统一放在该仓库的 `.venv` 目录下。
 - 数据、权重和虚拟环境不随 Git 提供。`GEMMA_MODEL_DIR` 可改为实际模型目录；旧 jobs 中的绝对图像路径也需迁移。
 - 视频放在 `dataset/datatang_session2_videos_fps24_012/`，按 `<video_base>___<object_slug>.mp4` 命名。
 - 预先准备 `dataset/gemma_result.json`：以视频相对路径为 key，值包含 `objects: [{"name": "物体名"}]`；空 objects 会被跳过。
@@ -69,7 +69,7 @@ cd "$WORKSPACE_ROOT/mast3r"
 
 ```bash
 cd "$WORKSPACE_ROOT/gemma"
-source .venv-hf/bin/activate      # transformers 环境，不是 .venv
+source .venv/bin/activate
 torchrun --nproc_per_node 8 scripts/gemma31b_keyframe_bbox.py \
     --model "$GEMMA_MODEL_DIR" \
     --output-json dataset/gemma_keyframe_bbox.json \
@@ -82,7 +82,7 @@ torchrun --nproc_per_node 8 scripts/gemma31b_keyframe_bbox.py \
 
 ```bash
 cd "$WORKSPACE_ROOT/sam2"
-source env.sh          # 或直接用 .venv/sam2/bin/python
+source .venv/bin/activate
 python tools/qwen3vl_bbox_to_mask.py \
     --bbox-json dataset/gemma_keyframe_bbox.json \
     --out-dir dataset/gemma_keyframe_masks \
@@ -130,7 +130,7 @@ CUDA_VISIBLE_DEVICES=0,1 .venv/bin/python run_s2v_multiview_hunyuan_distil.py \
 
 ```bash
 cd "$WORKSPACE_ROOT/gemma"
-source .venv-hf/bin/activate
+source .venv/bin/activate
 
 python scripts/gemma31b_edited_frame_consistency.py \
   --prepare-only \
