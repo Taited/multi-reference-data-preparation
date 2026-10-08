@@ -7,7 +7,7 @@
 ## 代码仓库
 
 | 项目 | GitHub | 流程分支 | 主要职责 |
-|---|---|---|---|---|
+|---|---|---|---|
 | MASt3R | [Taited/MASt3R](https://github.com/Taited/MASt3R) | `wentai/keyframe-pipeline`（`main` 同步） | 提取关键帧、基于共视性的视角去重与可视化 |
 | Gemma | [Taited/gemma](https://github.com/Taited/gemma) | `wentai/keyframe-pipeline` | 物体检测、模糊判断、bbox 和生成结果一致性审核 |
 | SAM2 | [Taited/sam2](https://github.com/Taited/sam2) | `wentai/keyframe-pipeline` | 用 bbox 生成前景 mask |
