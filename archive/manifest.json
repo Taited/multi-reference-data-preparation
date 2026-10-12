@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-12",
+  "workspace": "/mnt/data04/144632/qiwei.huang@videorebirth.com/wentai",
+  "files": [
+    {
+      "original": "S2V_THREE_VIEW_EXPERIMENT.md",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/S2V_THREE_VIEW_EXPERIMENT.md",
+      "sha256": "8cda334b0198dde4383e7eef1b22d27945cb5067fa4a7998d34a3ba6b8e6502e"
+    },
+    {
+      "original": "build_s2v_three_view_2x2.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/build_s2v_three_view_2x2.py",
+      "sha256": "965354bc565996a040231e006ba8e92410bce532a833b7a137d28914c262b6f2"
+    },
+    {
+      "original": "export_s2v_three_view_inputs.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/export_s2v_three_view_inputs.py",
+      "sha256": "db2170c4c1a34090efb1c1be69e7f1d1a1db86a6032bd3fe7a43c0aa4e4627a0"
+    },
+    {
+      "original": "launch_s2v_three_view_2x2.sh",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/launch_s2v_three_view_2x2.sh",
+      "sha256": "add564f6717891b4315147b87f1c6969f33c90da7bc37ebd0a9e49433bd3ff73"
+    },
+    {
+      "original": "prepare_s2v_three_view_inputs.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/prepare_s2v_three_view_inputs.py",
+      "sha256": "7449e56204b6aac6ab0aa3b74f1be7698b745c66c0808fe48805f2b4c537c805"
+    },
+    {
+      "original": "run_s2v_three_view_finalizer.sh",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/run_s2v_three_view_finalizer.sh",
+      "sha256": "92d9eb89713a0d9bfd28ed201c0dd3b3db5600dceb298c0f6abac13fcd3ba269"
+    },
+    {
+      "original": "run_s2v_three_view_worker.sh",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/run_s2v_three_view_worker.sh",
+      "sha256": "84872fe4001b0d351913bd13da04a65e9587c174b6f6e13ef2472b74c4a489a3"
+    },
+    {
+      "original": "s2v_three_view_common.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/s2v_three_view_common.py",
+      "sha256": "159b1d7652385a36d815cf57eade585b07370f522930b02f5c79a3e8635600a9"
+    },
+    {
+      "original": "s2v_three_view_status.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/s2v_three_view_status.py",
+      "sha256": "c678192a6074cbd9416a7730840e6e9d2b0546e6670c2e71ab3fa74a1dd0cde1"
+    },
+    {
+      "original": "HunyuanImage-3.0/run_s2v_three_view_controlled.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/HunyuanImage-3.0/run_s2v_three_view_controlled.py",
+      "sha256": "5fd4f8bdcc55605641a6bb1b0058c8c4e5dcb2912e5627f954f4169c91401935"
+    },
+    {
+      "original": "DiffSynth-Studio/run_s2v_three_view_controlled.py",
+      "archived": "multi-reference-data-preparation/archive/experiments/three-view-2x2/workspace/DiffSynth-Studio/run_s2v_three_view_controlled.py",
+      "sha256": "70f8ca9ba7e4535e5a1907f69e8f976e222f4cf72a2b1c9f1e617edaa66c6ef8"
+    }
+  ]
+}
